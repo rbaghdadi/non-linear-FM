@@ -13,6 +13,8 @@ typedef struct domain_qps
 isl_space *domain_qps_get_space(isl_ctx *ctx, domain_qps *domain);
 isl_set *domain_qps_intersect_constraints(isl_ctx *ctx,
 		struct domain_qps *domain);
+isl_union_set *domain_qps_union_constraints(isl_ctx *ctx,
+		struct domain_qps *domain);
 void constraint_qps_free(constraint_qps *cst);
 void domain_qps_dump(struct domain_qps *domain);
 

@@ -10,8 +10,8 @@ int test_parse(struct isl_ctx *ctx)
 	const char *str1, *str2, *str3;
 	isl_pw_qpolynomial *qp1, *qp2, *qp3;
 
-	str1 = "{ [i, j] -> i : i>=0 and i<=10 }";
-	str2 = "{ [i, j] -> 2*i       }";
+	str1 = "{ [i, j] -> i         }";
+	str2 = "{ [i, j] -> 2*i - 1   }";
 	str3 = "{ [i, j] -> 4*i + 2*j }";
 
 	qp1 = isl_pw_qpolynomial_read_from_str(ctx, str1);
@@ -20,8 +20,8 @@ int test_parse(struct isl_ctx *ctx)
 
 	domain_qps *domain = domain_qps_alloc();
 
-	constraint_qps *cst1 = constraint_qps_from_pw_qpolynomial(qp1, 1);
-	constraint_qps *cst2 = constraint_qps_from_pw_qpolynomial(qp2, 1);
+	constraint_qps *cst1 = constraint_qps_from_pw_qpolynomial(qp1, 0);
+	constraint_qps *cst2 = constraint_qps_from_pw_qpolynomial(qp2, 0);
 	constraint_qps *cst3 = constraint_qps_from_pw_qpolynomial(qp3, 0);
 
 	domain_qps_add_constraint(domain, cst1);
@@ -35,7 +35,13 @@ int test_parse(struct isl_ctx *ctx)
 	fprintf(stdout, "The intersection is:\n");
 	isl_set_dump(intersection);
 
+	isl_union_set *union_set = domain_qps_union_constraints(ctx, domain);
+	fprintf(stdout, "The union is:\n");
+	isl_union_set_dump(union_set);
+
+
 	isl_set_free(intersection);
+	isl_union_set_free(union_set);
 	domain_qps_free(domain);
 
 	return 0;

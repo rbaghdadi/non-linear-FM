@@ -3,6 +3,7 @@
 #include <isl/polynomial.h>
 #include <isl/map.h>
 #include <isl/set.h>
+#include <isl/union_set.h>
 #include <constraints_qps.h>
 #include <domain_qps.h>
 #include <string.h>
@@ -32,28 +33,70 @@ isl_set *domain_qps_intersect_constraints(isl_ctx *ctx,
 
 	assert(domain);
 
+	IF_DEBUG(fprintf(stdout, " Starting intersection function.\n"));
+
 	constraint_qps *constraints_list = domain->constraints_list;
 	intersection = isl_set_universe(domain_qps_get_space(ctx, domain));
 
-	IF_DEBUG(fprintf(stdout, "Initial value for intersection is:\n"));
+	IF_DEBUG(fprintf(stdout, " Initial value for intersection is:"));
 	IF_DEBUG(isl_set_dump(intersection));
-	IF_DEBUG(fprintf(stdout, "\n"));
 
 	while (constraints_list != NULL)
 	{
 		isl_set *set = constraint_qps_set_from_constraint(ctx,
 				constraints_list);
-		IF_DEBUG(fprintf(stdout, "constraint represented as a set: \n"));
+		IF_DEBUG(fprintf(stdout, " Constraint to intersect with,"
+					"represented as a set:"));
 		IF_DEBUG(isl_set_dump(set));
 
 		intersection = isl_set_intersect(intersection,
 				set);
-		IF_DEBUG(fprintf(stdout, "New value for intersection is:\n"));
+		IF_DEBUG(fprintf(stdout, " Result of intersection is:"));
 		IF_DEBUG(isl_set_dump(intersection));
 		constraints_list = constraints_list->next;
 	}
 
+	IF_DEBUG(fprintf(stdout, " End of intersection function.\n"));
+
 	return intersection;
+}
+
+
+/* Compute the union of all the constraints in domain.  */
+isl_union_set *domain_qps_union_constraints(isl_ctx *ctx,
+		struct domain_qps *domain)
+{
+	int i;
+	isl_union_set *union_set;
+
+	assert(domain);
+
+	IF_DEBUG(fprintf(stdout, " Starting the union function.\n"));
+
+	constraint_qps *constraints_list = domain->constraints_list;
+	union_set = isl_union_set_empty(domain_qps_get_space(ctx, domain));
+
+	IF_DEBUG(fprintf(stdout, " Initial value for the union set is:"));
+	IF_DEBUG(isl_union_set_dump(union_set));
+
+	while (constraints_list != NULL)
+	{
+		isl_set *set = constraint_qps_set_from_constraint(ctx,
+				constraints_list);
+		IF_DEBUG(fprintf(stdout, " The constraint to compute union"
+					 " with, represented as a set:"));
+		IF_DEBUG(isl_set_dump(set));
+
+		union_set = isl_union_set_union(union_set,
+				isl_union_set_from_set(set));
+		IF_DEBUG(fprintf(stdout, " Results of the union:"));
+		IF_DEBUG(isl_union_set_dump(union_set));
+		constraints_list = constraints_list->next;
+	}
+
+	IF_DEBUG(fprintf(stdout, " End of the union function.\n"));
+
+	return union_set;
 }
 
 void constraint_qps_free(constraint_qps *cst)

@@ -15,36 +15,38 @@ isl_set *constraint_qps_set_from_constraint(isl_ctx *ctx,
 	assert(ctx);
 	assert(constraints);
 
+	IF_DEBUG(fprintf(stdout, "  Transforming a constraint into ISL set.\n"));
+
 	p = isl_printer_to_str(ctx);
 
 	p = isl_printer_print_pw_qpolynomial(p, constraints->constraint);
 	char *str = isl_printer_get_str(p);
-	IF_DEBUG(fprintf(stdout, "qp constraint: %s\n", str));
+	IF_DEBUG(fprintf(stdout, "  The input Qpolynomianl constraint: %s\n", str));
 
 	assert(str);
 
 	/* Translate the qpolynomial into a map.  */
 	char *set_str = (char *) malloc((strlen(str)+10)*sizeof(char));
 	strcpy(set_str, str);
-	IF_DEBUG(fprintf(stdout, "set_str=%s\n", set_str));
+	IF_DEBUG2(fprintf(stdout, "  set_str=%s\n", set_str));
 	size_t pos_arrow = strcspn(str, ">");
 	set_str[pos_arrow-1] = ' ';
 	set_str[pos_arrow] = ':';
-	IF_DEBUG(fprintf(stdout, "set_str=%s\n", set_str));
+	IF_DEBUG2(fprintf(stdout, "  set_str=%s\n", set_str));
 	size_t pos_colon = strcspn(&(str[pos_arrow+1]), ":");
 	if (strchr(&(str[pos_arrow+1]), ':') != NULL)
 	{
 		set_str[pos_arrow+1+pos_colon] = ' ';
-		IF_DEBUG(fprintf(stdout, "set_str=%s\n", set_str));
+		IF_DEBUG2(fprintf(stdout, "  set_str=%s\n", set_str));
 
 		if (constraints->eq == 1)
 			strcpy(&(set_str[pos_arrow+1+pos_colon]), "  = 0 and ");
 		else
 			strcpy(&(set_str[pos_arrow+1+pos_colon]), " >= 0 and ");
 
-		IF_DEBUG(fprintf(stdout, "set_str=%s\n", set_str));
+		IF_DEBUG2(fprintf(stdout, "  set_str=%s\n", set_str));
 		strncpy(&(set_str[pos_arrow+pos_colon+10]), &(str[pos_arrow+1+pos_colon+1]), strlen(str) - pos_arrow - pos_colon);
-		IF_DEBUG(fprintf(stdout, "set_str=%s\n", set_str));
+		IF_DEBUG2(fprintf(stdout, "  set_str=%s\n", set_str));
 	}
 	else
 	{
@@ -56,10 +58,8 @@ isl_set *constraint_qps_set_from_constraint(isl_ctx *ctx,
 			strcat(&(set_str[pos_bracket]), " >= 0 }");
 	}
 
-	IF_DEBUG(fprintf(stdout, "After translating qp -> set: %s\n", set_str));
+	IF_DEBUG(fprintf(stdout, "  The Qpolynomial translated into a set is: %s\n", set_str));
 	isl_set *set = isl_set_read_from_str(ctx, set_str);
-	IF_DEBUG(fprintf(stdout, "After importing the set into ISL, the set is:\n"));
-	IF_DEBUG(isl_set_dump(set));
 
 	isl_printer_free(p);
 
