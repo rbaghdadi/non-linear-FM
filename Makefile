@@ -11,4 +11,4 @@ all:
 	libtool --mode=link gcc -O nfm_test.o nfm_constraint.o nfm_domain.o nfm_isl_interface.o polynomial_lib.o ../libisl.la -lm -o nfm_test
 
 clean:
-	rm -rf *.o *~ isl_test
+	rm -rf *.o *~ nfm_test .libs
