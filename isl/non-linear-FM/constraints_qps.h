@@ -5,6 +5,10 @@
 #include <stdio.h>
 #include <isl/polynomial.h>
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 typedef struct constraint_qps
 {
 	isl_pw_qpolynomial *constraint;
@@ -22,5 +26,9 @@ constraint_qps *constraint_qps_copy(constraint_qps *src);
 /* Create a quasi-polynomial constraint from an isl_pw_qpolynomial.  */
 constraint_qps *constraint_qps_from_pw_qpolynomial(isl_pw_qpolynomial *qp,
 		unsigned char eq);
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif
