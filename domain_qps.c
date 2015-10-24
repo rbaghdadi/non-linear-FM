@@ -1,13 +1,17 @@
 #include <assert.h>
 #include <stdio.h>
+#include <string.h>
+
 #include <isl/polynomial.h>
 #include <isl/map.h>
 #include <isl/set.h>
 #include <isl/union_set.h>
-#include <constraints_qps.h>
-#include <domain_qps.h>
-#include <string.h>
-#include <debug.h>
+
+#include <isl/non-linear-FM/constraints_qps.h>
+#include <isl/non-linear-FM/domain_qps.h>
+#include <isl/non-linear-FM/isl_utilities.h>
+
+#include "debug.h"
 
 isl_space *domain_qps_get_space(isl_ctx *ctx, domain_qps *domain)
 {
@@ -18,17 +22,16 @@ isl_space *domain_qps_get_space(isl_ctx *ctx, domain_qps *domain)
 		isl_space *qpspace =
 			isl_pw_qpolynomial_get_domain_space(
 					domain->constraints_list->constraint);
-		return qpspace; 
+		return qpspace;
 	}
 	else
 		return NULL;
 }
 
 /* Compute the intersection of all the constraints in domain.  */
-isl_set *domain_qps_intersect_constraints(isl_ctx *ctx,
+isl_bset_list *domain_qps_intersect_constraints(isl_ctx *ctx,
 		struct domain_qps *domain)
 {
-	int i;
 	isl_set *intersection;
 
 	assert(domain);
@@ -58,7 +61,12 @@ isl_set *domain_qps_intersect_constraints(isl_ctx *ctx,
 
 	IF_DEBUG(fprintf(stdout, " End of intersection function.\n"));
 
-	return intersection;
+	isl_bset_list *intersection_list =
+		isl_set_get_bsets_list(intersection);
+
+	isl_set_free(intersection);
+
+	return intersection_list;
 }
 
 
@@ -66,7 +74,6 @@ isl_set *domain_qps_intersect_constraints(isl_ctx *ctx,
 isl_union_set *domain_qps_union_constraints(isl_ctx *ctx,
 		struct domain_qps *domain)
 {
-	int i;
 	isl_union_set *union_set;
 
 	assert(domain);

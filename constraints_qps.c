@@ -1,11 +1,13 @@
 #include <assert.h>
 #include <stdio.h>
+#include <string.h>
+
 #include <isl/polynomial.h>
 #include <isl/set.h>
-#include <constraints_qps.h>
-#include <domain_qps.h>
-#include <string.h>
-#include <debug.h>
+#include <isl/non-linear-FM/constraints_qps.h>
+#include <isl/non-linear-FM/domain_qps.h>
+
+#include "debug.h"
 
 isl_set *constraint_qps_set_from_constraint(isl_ctx *ctx,
 		constraint_qps *constraints)
