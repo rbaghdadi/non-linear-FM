@@ -7,13 +7,13 @@
 #include <isl/set.h>
 #include <isl/union_set.h>
 
-#include <isl/non-linear-FM/constraints_qps.h>
-#include <isl/non-linear-FM/domain_qps.h>
-#include <isl/non-linear-FM/isl_utilities.h>
+#include <isl/non-linear-FM/constraint.h>
+#include <isl/non-linear-FM/domain.h>
+#include <isl/non-linear-FM/isl_interface.h>
 
 #include "debug.h"
 
-isl_space *domain_qps_get_space(isl_ctx *ctx, domain_qps *domain)
+isl_space *domain_get_space(isl_ctx *ctx, domain *domain)
 {
 	assert(domain);
 
@@ -29,8 +29,8 @@ isl_space *domain_qps_get_space(isl_ctx *ctx, domain_qps *domain)
 }
 
 /* Compute the intersection of all the constraints in domain.  */
-isl_bset_list *domain_qps_intersect_constraints(isl_ctx *ctx,
-		struct domain_qps *domain)
+isl_bset_list *domain_intersect_constraints(isl_ctx *ctx,
+		struct domain *domain)
 {
 	isl_set *intersection;
 
@@ -38,15 +38,15 @@ isl_bset_list *domain_qps_intersect_constraints(isl_ctx *ctx,
 
 	IF_DEBUG(fprintf(stdout, " Starting intersection function.\n"));
 
-	constraint_qps *constraints_list = domain->constraints_list;
-	intersection = isl_set_universe(domain_qps_get_space(ctx, domain));
+	constraint *constraints_list = domain->constraints_list;
+	intersection = isl_set_universe(domain_get_space(ctx, domain));
 
 	IF_DEBUG(fprintf(stdout, " Initial value for intersection is:"));
 	IF_DEBUG(isl_set_dump(intersection));
 
 	while (constraints_list != NULL)
 	{
-		isl_set *set = constraint_qps_set_from_constraint(ctx,
+		isl_set *set = constraint_set_from_constraint(ctx,
 				constraints_list);
 		IF_DEBUG(fprintf(stdout, " Constraint to intersect with,"
 					"represented as a set:"));
@@ -71,8 +71,8 @@ isl_bset_list *domain_qps_intersect_constraints(isl_ctx *ctx,
 
 
 /* Compute the union of all the constraints in domain.  */
-isl_union_set *domain_qps_union_constraints(isl_ctx *ctx,
-		struct domain_qps *domain)
+isl_union_set *domain_union_constraints(isl_ctx *ctx,
+		struct domain *domain)
 {
 	isl_union_set *union_set;
 
@@ -80,15 +80,15 @@ isl_union_set *domain_qps_union_constraints(isl_ctx *ctx,
 
 	IF_DEBUG(fprintf(stdout, " Starting the union function.\n"));
 
-	constraint_qps *constraints_list = domain->constraints_list;
-	union_set = isl_union_set_empty(domain_qps_get_space(ctx, domain));
+	constraint *constraints_list = domain->constraints_list;
+	union_set = isl_union_set_empty(domain_get_space(ctx, domain));
 
 	IF_DEBUG(fprintf(stdout, " Initial value for the union set is:"));
 	IF_DEBUG(isl_union_set_dump(union_set));
 
 	while (constraints_list != NULL)
 	{
-		isl_set *set = constraint_qps_set_from_constraint(ctx,
+		isl_set *set = constraint_set_from_constraint(ctx,
 				constraints_list);
 		IF_DEBUG(fprintf(stdout, " The constraint to compute union"
 					 " with, represented as a set:"));
@@ -106,16 +106,10 @@ isl_union_set *domain_qps_union_constraints(isl_ctx *ctx,
 	return union_set;
 }
 
-void constraint_qps_free(constraint_qps *cst)
-{
-	isl_pw_qpolynomial_free(cst->constraint);
 
-	free(cst);
-}
-
-void domain_qps_dump(struct domain_qps *domain)
+void domain_dump(struct domain *domain)
 {
-	constraint_qps *head = domain->constraints_list;
+	constraint *head = domain->constraints_list;
 
 	fprintf(stdout, "List of constraints (%d constraints):\n", domain->n);
 
@@ -134,11 +128,11 @@ void domain_qps_dump(struct domain_qps *domain)
 	}
 }
 
-void domain_qps_free(domain_qps *domain)
+void domain_free(domain *domain)
 {
 	assert (domain);
 
-	constraint_qps *head = domain->constraints_list;
+	constraint *head = domain->constraints_list;
 
 	while (head != NULL)
 	{
@@ -149,10 +143,10 @@ void domain_qps_free(domain_qps *domain)
 	free(domain);
 }
 
-domain_qps *domain_qps_alloc()
+domain *domain_alloc()
 {
-	struct domain_qps *domain = (struct domain_qps *)
-					malloc(sizeof(struct domain_qps));
+	struct domain *domain = (struct domain *)
+					malloc(sizeof(struct domain));
 	domain->n = 0;
 	domain->constraints_list = NULL;
 
@@ -160,14 +154,14 @@ domain_qps *domain_qps_alloc()
 }
 
 /* Add constraint to a domain of quasi-polynomials.  */
-void domain_qps_add_constraint(struct domain_qps *domain,
-				struct constraint_qps *constraint)
+void domain_add_constraint(struct domain *domain,
+				struct constraint *constraint)
 {
-	constraint_qps *head = domain->constraints_list;
+	struct constraint *head = domain->constraints_list;
 
 	assert(constraint);
 
-	constraint_qps *new_constraint = constraint_qps_copy(constraint);
+	struct constraint *new_constraint = constraint_copy(constraint);
 	new_constraint->next = NULL;
 
 	if (head != NULL)

@@ -2,15 +2,35 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <isl/polynomial.h>
 #include <isl/set.h>
-#include <isl/non-linear-FM/constraints_qps.h>
-#include <isl/non-linear-FM/domain_qps.h>
+#include <isl/union_set.h>
+
+#include <isl/non-linear-FM/constraint.h>
+#include <isl/non-linear-FM/domain.h>
+#include <isl/non-linear-FM/isl_interface.h>
 
 #include "debug.h"
 
-isl_set *constraint_qps_set_from_constraint(isl_ctx *ctx,
-		constraint_qps *constraints)
+/* Create a constraint from an isl_pw_qpolynomial.
+   eq is true if the constraint is an equality.
+ */
+constraint *constraint_from_pw_qpolynomial(isl_pw_qpolynomial *qp,
+		unsigned char eq)
+{
+	assert(qp);
+
+	constraint *cst = (constraint *)
+		malloc(sizeof(constraint));
+
+	cst->constraint = qp;
+	cst->eq = eq;
+	cst->next = NULL;
+
+	return cst;
+}
+
+isl_set *constraint_set_from_constraint(isl_ctx *ctx,
+		constraint *constraints)
 {
 	isl_printer *p;
 
@@ -68,37 +88,72 @@ isl_set *constraint_qps_set_from_constraint(isl_ctx *ctx,
 	return set;
 }
 
-
-/* A domain described using quasi-polynomial constraints.  */
-constraint_qps *constraint_qps_copy(constraint_qps *src)
+isl_stat extract_basic_set_from_set(isl_basic_set *bset, void *bset_list)
 {
-	assert(src);
+	isl_bset_list **list = (isl_bset_list **) bset_list;
 
-	constraint_qps *dest = (constraint_qps *)
-					malloc(sizeof(constraint_qps));
+	if (*list == NULL)
+	{
+		isl_bset_list *node = (isl_bset_list *)
+			malloc(sizeof(isl_bset_list));
 
-	dest->constraint = isl_pw_qpolynomial_copy(src->constraint);
-	dest->eq = src->eq;
+		node->bset = bset;
+		node->next = NULL;
 
-	constraint_qps_free(src);
+		*list = node;
+	}
+	else
+	{
 
-	return dest;
+		while((*list)->next != NULL)
+			(*list) = (*list)->next;
+
+		isl_bset_list *node = (isl_bset_list *)
+			malloc(sizeof(isl_bset_list));
+
+		node->bset = bset;
+		node->next = NULL;
+
+		(*list)->next = node;
+	}
+
+	return isl_stat_ok;
 }
 
-/* Create a quasi-polynomial constraint from an isl_pw_qpolynomial.
-   eq is true if the constraint is an equality.
- */
-constraint_qps *constraint_qps_from_pw_qpolynomial(isl_pw_qpolynomial *qp,
-		unsigned char eq)
+/* Return the list of basic sets in a set.  */
+isl_bset_list *isl_set_get_bsets_list(isl_set *set)
 {
-	assert(qp);
+	assert(set);
 
-	constraint_qps *cst = (constraint_qps *)
-		malloc(sizeof(constraint_qps));
+	isl_bset_list *list = NULL;
 
-	cst->constraint = qp;
-	cst->eq = eq;
-	cst->next = NULL;
+	isl_set_foreach_basic_set(set,
+			extract_basic_set_from_set, &list);
 
-	return cst;
+	return list;
+}
+
+void isl_bset_list_dump(isl_bset_list *list)
+{
+	isl_bset_list *node = list;
+
+	while (node != NULL)
+	{
+		isl_basic_set_dump(node->bset);
+		node = node->next;
+	}
+}
+
+void isl_bset_list_free(isl_bset_list *list)
+{
+	isl_bset_list *node = list;
+	isl_bset_list *next_node;
+
+	while (node != NULL)
+	{
+		isl_basic_set_free(node->bset);
+		next_node = node->next;
+		free(node);
+		node = next_node;
+	}
 }

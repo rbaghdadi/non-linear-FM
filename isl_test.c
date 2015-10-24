@@ -3,9 +3,9 @@
 #include <isl/options.h>
 #include <isl/set.h>
 
-#include <constraints_qps.h>
-#include <domain_qps.h>
-#include <isl_utilities.h>
+#include <constraint.h>
+#include <domain.h>
+#include <isl_interface.h>
 
 int test_parse(struct isl_ctx *ctx)
 {
@@ -31,26 +31,26 @@ int test_parse(struct isl_ctx *ctx)
 
 	fprintf(stdout, "\n\n"); fflush(stdout);
 
-	domain_qps *domain = domain_qps_alloc();
+	domain *domain = domain_alloc();
 
-	constraint_qps *cst1 = constraint_qps_from_pw_qpolynomial(qp1, 0);
-	constraint_qps *cst2 = constraint_qps_from_pw_qpolynomial(qp2, 0);
-	constraint_qps *cst3 = constraint_qps_from_pw_qpolynomial(qp3, 0);
+	constraint *cst1 = constraint_from_pw_qpolynomial(qp1, 0);
+	constraint *cst2 = constraint_from_pw_qpolynomial(qp2, 0);
+	constraint *cst3 = constraint_from_pw_qpolynomial(qp3, 0);
 
-	domain_qps_add_constraint(domain, cst1);
-	domain_qps_add_constraint(domain, cst2);
-	domain_qps_add_constraint(domain, cst3);
+	domain_add_constraint(domain, cst1);
+	domain_add_constraint(domain, cst2);
+	domain_add_constraint(domain, cst3);
 
 	fprintf(stdout, "The domain is:\n");
-	domain_qps_dump(domain);
+	domain_dump(domain);
 
-	isl_bset_list *intersection = domain_qps_intersect_constraints(ctx, domain);
+	isl_bset_list *intersection = domain_intersect_constraints(ctx, domain);
 	fprintf(stdout, "The intersection is:"); fflush(stdout);
 	isl_bset_list_dump(intersection); fflush(stdout);
 	fprintf(stdout, "\n"); fflush(stdout);
 
 	fprintf(stdout, "\nCalling the union function."); fflush(stdout);
-	isl_union_set *union_set = domain_qps_union_constraints(ctx, domain);
+	isl_union_set *union_set = domain_union_constraints(ctx, domain);
 	fprintf(stdout, "The union is:\n");
 	isl_union_set_dump(union_set);
 
@@ -59,7 +59,7 @@ int test_parse(struct isl_ctx *ctx)
 	isl_bset_list_free(list);
 	isl_bset_list_free(intersection);
 	isl_union_set_free(union_set);
-	domain_qps_free(domain);
+	domain_free(domain);
 
 	return 0;
 }
