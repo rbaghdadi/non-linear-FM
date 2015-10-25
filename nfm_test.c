@@ -6,6 +6,7 @@
 #include <nfm_constraint.h>
 #include <nfm_domain.h>
 #include <nfm_isl_interface.h>
+#include <nfm_union_domain.h>
 
 int test_parse(struct isl_ctx *ctx)
 {
@@ -49,11 +50,14 @@ int test_parse(struct isl_ctx *ctx)
 	isl_bset_list_dump(intersection); fflush(stdout);
 	fprintf(stdout, "\n"); fflush(stdout);
 
+	nfm_union_domain *union_domain = nfm_union_domain_alloc();
+	nfm_union_domain_add_domain(union_domain, domain);
+	fprintf(stdout, "\nThe union domain is:"); fflush(stdout);
+	nfm_union_domain_dump(union_domain);
 	fprintf(stdout, "\nCalling the union function."); fflush(stdout);
-	isl_union_set *union_set = nfm_domain_union_constraints(ctx, domain);
+	isl_union_set *union_set = nfm_union_domain_union_domains(ctx, union_domain);
 	fprintf(stdout, "The union is:\n");
 	isl_union_set_dump(union_set);
-
 
 	isl_set_free(s);
 	isl_bset_list_free(list);

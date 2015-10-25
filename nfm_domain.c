@@ -70,43 +70,6 @@ isl_bset_list *nfm_domain_intersect_constraints(isl_ctx *ctx,
 }
 
 
-/* Compute the union of all the constraints in domain.  */
-isl_union_set *nfm_domain_union_constraints(isl_ctx *ctx,
-		struct nfm_domain *domain)
-{
-	isl_union_set *union_set;
-
-	assert(domain);
-
-	IF_DEBUG(fprintf(stdout, " Starting the union function.\n"));
-
-	nfm_constraint *constraints_list = domain->constraints_list;
-	union_set = isl_union_set_empty(nfm_domain_get_space(ctx, domain));
-
-	IF_DEBUG(fprintf(stdout, " Initial value for the union set is:"));
-	IF_DEBUG(isl_union_set_dump(union_set));
-
-	while (constraints_list != NULL)
-	{
-		isl_set *set = nfm_constraint_from_set(ctx,
-				constraints_list);
-		IF_DEBUG(fprintf(stdout, " The constraint to compute union"
-					 " with, represented as a set:"));
-		IF_DEBUG(isl_set_dump(set));
-
-		union_set = isl_union_set_union(union_set,
-				isl_union_set_from_set(set));
-		IF_DEBUG(fprintf(stdout, " Results of the union:"));
-		IF_DEBUG(isl_union_set_dump(union_set));
-		constraints_list = constraints_list->next;
-	}
-
-	IF_DEBUG(fprintf(stdout, " End of the union function.\n"));
-
-	return union_set;
-}
-
-
 void nfm_domain_dump(struct nfm_domain *domain)
 {
 	nfm_constraint *head = domain->constraints_list;
