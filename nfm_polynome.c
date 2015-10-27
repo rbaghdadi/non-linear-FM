@@ -3,7 +3,7 @@
 #include <isl/non-linear-FM/nfm.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <debug.h>
+#include <isl/non-linear-FM/nfm_debug.h>
 
 nfm_term_c *nfm_term_c_alloc(double coeff, int *exponents,
 		 char *variable_names)

@@ -11,7 +11,7 @@
 #include <isl/non-linear-FM/nfm_domain.h>
 #include <isl/non-linear-FM/nfm_isl_interface.h>
 
-#include "debug.h"
+#include "isl/non-linear-FM/nfm_debug.h"
 
 isl_space *nfm_domain_get_space(isl_ctx *ctx, nfm_domain *domain)
 {

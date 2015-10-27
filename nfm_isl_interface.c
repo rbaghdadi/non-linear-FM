@@ -9,7 +9,7 @@
 #include <isl/non-linear-FM/nfm_domain.h>
 #include <isl/non-linear-FM/nfm_isl_interface.h>
 
-#include "debug.h"
+#include "isl/non-linear-FM/nfm_debug.h"
 
 /* Create a constraint from an isl_pw_qpolynomial.
    eq is true if the constraint is an equality.

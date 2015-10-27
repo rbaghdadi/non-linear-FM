@@ -10,7 +10,7 @@
 #include <isl/non-linear-FM/nfm_union_domain.h>
 #include <isl/non-linear-FM/nfm_isl_interface.h>
 
-#include "debug.h"
+#include "isl/non-linear-FM/nfm_debug.h"
 
 void nfm_union_domain_dump(struct nfm_union_domain *union_domain)
 {

@@ -7,7 +7,7 @@
 #include <isl/non-linear-FM/nfm_constraint.h>
 #include <isl/non-linear-FM/nfm_domain.h>
 
-#include "debug.h"
+#include "isl/non-linear-FM/nfm_debug.h"
 
 /* A domain described using quasi-polynomial constraints.  */
 nfm_constraint *nfm_constraint_copy(nfm_constraint *src)
